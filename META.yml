@@ -1,0 +1,30 @@
+---
+abstract: 'Common Widgets using SDL'
+author: []
+configure_requires:
+  Module::Build: 0.36
+generated_by: 'Module::Build version 0.3603'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: SDLx-Widget
+provides:
+  SDLx::Controller::Timer:
+    file: lib/SDLx/Widget/Controller/Timer.pm
+  SDLx::Widget:
+    file: lib/SDLx/Widget.pm
+    version: 0.01
+  SDLx::Widget::Animation:
+    file: lib/SDLx/Widget/Animation.pm
+  SDLx::Widget::Controller:
+    file: lib/SDLx/Widget/Controller.pm
+  SDLx::Widget::Drawable:
+    file: lib/SDLx/Widget/Drawable.pm
+  SDLx::Widget::Menu:
+    file: lib/SDLx/Widget/Menu.pm
+  SDLx::Widget::Sprite:
+    file: lib/SDLx/Widget/Sprite.pm
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.01
