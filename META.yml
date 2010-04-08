@@ -1,6 +1,9 @@
 ---
-abstract: 'Common Widgets using SDL'
-author: []
+abstract: 'Common game widgets using SDL'
+author:
+  - 'Dustin Mays, Garu, Zpmorgan, kthakore'
+build_requires:
+  SDL: 2.4
 configure_requires:
   Module::Build: 0.36
 generated_by: 'Module::Build version 0.3603'
@@ -12,7 +15,7 @@ name: SDLx-Widget
 provides:
   SDLx::Widget:
     file: lib/SDLx/Widget.pm
-    version: 0.02
+    version: 0.03
   SDLx::Widget::Animation:
     file: lib/SDLx/Widget/Animation.pm
   SDLx::Widget::Controller:
@@ -26,5 +29,7 @@ provides:
   SDLx::Widget::Sprite:
     file: lib/SDLx/Widget/Sprite.pm
 resources:
+  bugtracker: http://sdlperl.ath.cx/projects/SDLPerl/
   license: http://dev.perl.org/licenses/
-version: 0.02
+  repository: http://github.com/kthakore/SDLx-Widgets
+version: 0.03
