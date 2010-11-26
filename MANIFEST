@@ -1,19 +1,15 @@
 Build.PL
 Changes
-examples/01.pl
-examples/02.pl
+data/chest.png
+data/hero.png
 examples/03.pl
 lib/SDLx/Widget.pm
-lib/SDLx/Widget/Animation.pm
-lib/SDLx/Widget/Controller.pm
-lib/SDLx/Widget/Controller/Timer.pm
-lib/SDLx/Widget/Drawable.pm
 lib/SDLx/Widget/Menu.pm
-lib/SDLx/Widget/Sprite.pm
+lib/SDLx/Widget/Textbox.pm
 LICENSE
 MANIFEST			This list of files
 MANIFEST.SKIP
-META.yml
 README
 t/001_load.t
 Todo
+META.yml
