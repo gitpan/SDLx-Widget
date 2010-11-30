@@ -20,9 +20,10 @@ provides:
     file: lib/SDLx/Widget/Textbox.pm
 requires:
   Clipboard: 0
+  Mouse: 0
   SDL: 2.523
 resources:
   bugtracker: http://sdlperl.ath.cx/projects/SDLPerl/
   license: http://dev.perl.org/licenses/
   repository: http://github.com/PerlGameDev/SDLx-Widget
-version: 0.04
+version: 0.05
