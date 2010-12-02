@@ -1,5 +1,5 @@
 ---
-abstract: 'Common game widgets using SDL'
+abstract: 'Common Widgets using SDL'
 author:
   - 'Dustin Mays, garu, Zpmorgan, kthakore, FROGGS'
 build_requires:
@@ -14,6 +14,9 @@ meta-spec:
   version: 1.4
 name: SDLx-Widget
 provides:
+  SDLx::Widget:
+    file: lib/SDLx/Widget.pm
+    version: 0.06
   SDLx::Widget::Menu:
     file: lib/SDLx/Widget/Menu.pm
   SDLx::Widget::Textbox:
@@ -26,4 +29,4 @@ resources:
   bugtracker: http://sdlperl.ath.cx/projects/SDLPerl/
   license: http://dev.perl.org/licenses/
   repository: http://github.com/PerlGameDev/SDLx-Widget
-version: 0.05
+version: 0.06
