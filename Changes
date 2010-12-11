@@ -1,5 +1,8 @@
 Revision history for Perl module SDLx::Widget
 
+0.07
+	- Checking for extra SDL deps
+
 0.06
 	- Using CPAN compliant SDLx-Widget versioning modules
 

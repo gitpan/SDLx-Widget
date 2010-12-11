@@ -16,7 +16,7 @@ name: SDLx-Widget
 provides:
   SDLx::Widget:
     file: lib/SDLx/Widget.pm
-    version: 0.06
+    version: 0.07
   SDLx::Widget::Menu:
     file: lib/SDLx/Widget/Menu.pm
   SDLx::Widget::Textbox:
@@ -29,4 +29,4 @@ resources:
   bugtracker: http://sdlperl.ath.cx/projects/SDLPerl/
   license: http://dev.perl.org/licenses/
   repository: http://github.com/PerlGameDev/SDLx-Widget
-version: 0.06
+version: 0.07
