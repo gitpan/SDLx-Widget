@@ -1,0 +1,6 @@
+
+=head1 TODO
+
+* scrolling Text when typing more textbox width
+* tabbing from one box to another
+* repeating key on longer keypress

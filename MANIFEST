@@ -3,6 +3,7 @@ Changes
 data/chest.png
 data/hero.png
 examples/03.pl
+lib/pods/SDLx/Widget/Textbox.pod
 lib/SDLx/Widget.pm
 lib/SDLx/Widget/Menu.pm
 lib/SDLx/Widget/Textbox.pm

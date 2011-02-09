@@ -43,10 +43,6 @@ has '_select_sound' => (is => 'rw', isa => 'SDL::Mixer::MixChunk' );
 sub BUILD {
     my $self = shift;
 
-	 unless ( SDL::Config->has('SDL_ttf') ) {
-        Carp::cluck("SDL_ttf support has not been compiled");
-    }
-
     $self->_build_font;
     $self->_build_sound;
 }
@@ -54,10 +50,9 @@ sub BUILD {
 sub _build_font {
     my $self = shift;
 
-  	unless ( SDL::TTF::was_init() )
-    {
-       Carp::cluck ("Cannot init TTF: " . SDL::get_error() ) unless SDL::TTF::init() == 0;
-	}
+    eval(' SDL::TTF::init' );
+
+	if($@) { Carp::croak "Cannot initialize ttf, please ensure Alien::SDL is installed with SDL_ttf supported " }
     $self->_font( SDL::TTF::open_font( $self->font, $self->font_size ) );
 
     Carp::croak 'Error opening font: ' . SDL::get_error
