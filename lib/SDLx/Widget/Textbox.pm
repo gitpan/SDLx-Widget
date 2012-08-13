@@ -16,6 +16,8 @@ use Time::HiRes;
 
 use Mouse;
 
+our $VERSION = '0.072';
+
 has 'app'          => ( is => 'ro', isa => 'SDLx::Controller', required => 1 );
 has 'value'        => ( is => 'rw', isa => 'Str', default => '' );
 has 'focus'        => ( is => 'rw', isa => 'Int', default => 0 );
@@ -340,6 +342,12 @@ Get the value out by:
 Also know if it is focused right now.
 
     warn 'Stop typing here!' if $textbox->focus;
+
+=head1 METHODS
+
+=head2 event_handler( $event )
+
+=head2 show( $surface )
 
 =head1 SEE ALSO
 

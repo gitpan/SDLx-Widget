@@ -6,8 +6,9 @@ build_requires:
   SDL: 2.523
   Test::More: 0.88
 configure_requires:
-  Module::Build: 0.36
-generated_by: 'Module::Build version 0.3607'
+  Module::Build: 0
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -16,17 +17,19 @@ name: SDLx-Widget
 provides:
   SDLx::Widget:
     file: lib/SDLx/Widget.pm
-    version: 0.071
+    version: 0.072
   SDLx::Widget::Menu:
     file: lib/SDLx/Widget/Menu.pm
+    version: 0.072
   SDLx::Widget::Textbox:
     file: lib/SDLx/Widget/Textbox.pm
+    version: 0.072
 requires:
   Clipboard: 0
   Mouse: 0
   SDL: 2.523
 resources:
-  bugtracker: http://sdlperl.ath.cx/projects/SDLPerl/
+  bugtracker: https://github.com/PerlGameDev/SDLx-Widget/issues
   license: http://dev.perl.org/licenses/
-  repository: http://github.com/PerlGameDev/SDLx-Widget
-version: 0.071
+  repository: https://github.com/PerlGameDev/SDLx-Widget
+version: 0.072

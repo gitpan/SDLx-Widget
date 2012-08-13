@@ -8,7 +8,7 @@ USAGE
     See the examples directory that came with this package
 
 BUGS
-    You tell me! http://sdlperl.ath.cx/
+    You tell me! https://github.com/PerlGameDev/SDLx-Widget/issues
 
 SUPPORT
     #sdl irc.perl.org
@@ -18,11 +18,13 @@ AUTHORS
 
     Garu CPAN ID: GARU
 
-    Zach CPAN ID:ZPMORGAN
+    Zach CPAN ID: ZPMORGAN
 
     FROGGS CPAN ID: FROGGS
 
     Kartik Thakore CPAN ID: KTHAKORE
+
+    Jeffrey T. Palmer CPAN ID: JTPALMER
 
     http://sdl.perl.org
 

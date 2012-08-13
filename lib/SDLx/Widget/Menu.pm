@@ -1,30 +1,47 @@
 package SDLx::Widget::Menu;
+use strict;
+use warnings;
 use SDL;
 use SDL::Audio;
 use SDL::Video;
-use SDL::TTF;
+use SDLx::Text;
 use SDL::Color;
-use SDL::Rect;
 use SDL::Event;
 use SDL::Events;
+use SDLx::Rect;
+use SDL::TTF;
 use Carp ();
 use Mouse;
 
+our $VERSION = '0.072';
+
 # TODO: add default values
-has 'font'         => ( is => 'ro', isa => 'Str', required => 1 );
+has 'font'         => ( is => 'ro', isa => 'Str' );
 has 'font_color'   => ( is => 'ro', isa => 'ArrayRef', 
                         default => sub { [ 255, 255, 255] }
                       );
+
+has 'topleft' => ( is => 'ro', isa => 'ArrayRef', default => sub { [0,0] } );
+
+has 'h_align' => ( is => 'ro', isa => 'Str', default => sub { 'center' } );
+
+has 'spacing' => ( is => 'ro', isa => 'Int', default => sub { 20 } );
 
 has 'select_color' => ( is => 'ro', isa => 'ArrayRef', 
                         default => sub { [ 255, 0, 0 ] }
                       );
 
+has 'active_color' => ( is => 'ro', isa => 'ArrayRef',
+                        default => sub { [ 255, 255, 0 ] }
+                      );
+
 has 'font_size'    => ( is => 'ro', isa => 'Int', default => 24 );
 has 'current'      => ( is => 'rw', isa => 'Int', default => 0 );
+has 'selected'     => ( is => 'rw', isa => 'Maybe[Int]' );
+
+has 'mouse'        => ( is => 'ro', isa => 'Bool', default => 1);
 
 # TODO implement those
-has 'mouse'        => ( is => 'ro', isa => 'Bool');
 has 'change_sound' => ( is => 'ro', isa => 'Str' );
 has 'select_sound' => ( is => 'ro', isa => 'Str' );
 
@@ -34,9 +51,8 @@ has 'has_audio' => ( is => 'rw', isa => 'Bool', default => 0,
 
 # internal
 has '_items' => (is => 'rw', isa => 'ArrayRef', default => sub {[]} );
-has '_font'  => (is => 'rw', isa => 'SDL::TTF::Font' );
-has '_font_color'   => (is => 'rw', isa => 'SDL::Color' );
-has '_select_color' => (is => 'rw', isa => 'SDL::Color' );
+has '_container_rect' => ( is => 'rw', isa => 'SDLx::Rect' );
+has '_font'  => (is => 'rw', isa => 'SDLx::Text' );
 has '_change_sound' => (is => 'rw', isa => 'SDL::Mixer::MixChunk' );
 has '_select_sound' => (is => 'rw', isa => 'SDL::Mixer::MixChunk' );
 
@@ -50,16 +66,10 @@ sub BUILD {
 sub _build_font {
     my $self = shift;
 
-    eval(' SDL::TTF::init' );
+    my $font = SDLx::Text->new( size => $self->font_size );
+    $font->font( $self->font ) if $self->font;
 
-	if($@) { Carp::croak "Cannot initialize ttf, please ensure Alien::SDL is installed with SDL_ttf supported " }
-    $self->_font( SDL::TTF::open_font( $self->font, $self->font_size ) );
-
-    Carp::croak 'Error opening font: ' . SDL::get_error
-        unless $self->_font;
-
-    $self->_font_color( SDL::Color->new( @{$self->font_color} ) );
-    $self->_select_color( SDL::Color->new( @{$self->select_color} ) );
+    $self->_font( $font );
 }
 
 sub _build_sound {
@@ -95,21 +105,61 @@ sub _build_sound {
 }
 
 # this is the method used to indicate
-# all menu items and their callbacks
+# all menu items, their position on screen and callbacks
 sub items {
     my ($self, @items) = @_;
 
+    my ( $top, $left ) = @{$self->topleft};
+    my $largest = 0;
+    my $item_top = $top;
+
     while( my ($name, $val) = splice @items, 0, 2 ) {
-        push @{$self->_items}, { name => $name, trigger => $val };
+        my ( $width, $height )
+            = @{ SDL::TTF::size_text( $self->_font->font, $name ) };
+
+        $largest = $width if $width > $largest;
+
+        my $rect
+            = SDLx::Rect->new( $left, $item_top, $width, $height );
+
+        push @{$self->_items},
+            { name => $name, trigger => $val, rect => $rect };
+
+        $item_top += $self->spacing + $height;
     }
+
+    # second pass, aligning against the largest item
+    if ($self->h_align ne 'left') {
+        # default is to center
+        my ($method, $value) = ( 'centerx', $left + ($largest / 2) );
+        if ($self->h_align eq 'right') {
+            ($method, $value) = ('right', $left + $largest );
+        }
+
+        foreach my $item ( @{ $self->_items } ) {
+            $item->{rect}->$method( $value );
+        }
+    }
+
+    # we store a container rect surrounding all items
+    # to help speed things up during mouse motion checks
+    $self->_container_rect( SDLx::Rect->new(
+               $left,
+               $top,
+               $largest,
+               $item_top - $top - $self->spacing
+    ));
 
     return $self;
 }
 
 sub event_hook {
     my ($self, $event) = @_;
-    # TODO: add mouse hooks
-    if ( $event->type == SDL_KEYDOWN ) {
+
+    my $type = $event->type;
+    my $mask = SDL_EVENTMASK($type);
+
+    if ( $type == SDL_KEYDOWN ) {
         my $key = $event->key_sym;
 
         if ($key == SDLK_DOWN) {
@@ -122,7 +172,31 @@ sub event_hook {
         }
         elsif ($key == SDLK_RETURN or $key == SDLK_KP_ENTER ) {
             $self->_play($self->_select_sound);
+            $self->selected( $self->current );
             return $self->_items->[$self->current]->{trigger}->();
+        }
+    }
+    elsif ( $self->mouse && ( $mask & SDL_MOUSEEVENTMASK ) ) {
+        my ( $x, $y ) = ( $event->button_x, $event->button_y );
+        my @items     = @{$self->_items};
+
+        if ( $type == SDL_MOUSEMOTION ) {
+            ($x, $y) = ( $event->motion_x, $event->motion_y );
+            if ($self->_container_rect->collidepoint( $x, $y )) {
+                for ( 0 .. $#items ) {
+                    if ( $items[$_]->{rect}->collidepoint( $x, $y ) ) {
+                        $self->current( $_ );
+                        last;
+                    }
+                }
+            }
+        }
+        elsif ( $type == SDL_MOUSEBUTTONUP ) {
+            if ( $items[$self->current]->{rect}->collidepoint( $x, $y ) ) {
+                $self->_play($self->_select_sound);
+                $self->selected( $self->current );
+                return $items[$self->current]->{trigger}->();
+            }
         }
     }
 
@@ -145,30 +219,28 @@ sub _play {
 # they need updating in each delta t.
 sub update {}
 
+=pod
+
+=for Pod::Coverage update
+
+=cut
 
 sub render {
     my ($self, $screen) = @_;
 
-    # TODO: parametrize line spacing (height)
-    # and other constants used here
-    my $height = 200;
+    my $font = $self->_font;
 
     foreach my $item ( @{$self->_items} ) {
 #        print STDERR 'it: ' . $item->{name} . ', s: '. $self->_items->[$self->current]->{name} . ', c: ' . $self->current . $/;
-        my $color = $item->{name} eq $self->_items->[$self->current]->{name}
-                  ? $self->_select_color : $self->_font_color
+
+        my $color = defined $self->selected && $item->{name} eq $self->_items->[$self->selected]->{name}
+                  ? $self->select_color
+                  : $item->{name} eq $self->_items->[$self->current]->{name}
+                  ? $self->active_color : $self->font_color
                   ;
 
-        my $surface = SDL::TTF::render_text_blended(
-                $self->_font, $item->{'name'}, $color
-            ) or Carp::croak 'TTF render error: ' . SDL::get_error;
-
-        SDL::Video::blit_surface(
-                $surface, 
-                SDL::Rect->new(0,0,$surface->w, $surface->h),
-                $screen,
-                SDL::Rect->new( $screen->w / 2 - 70, $height += 50, $screen->w, $screen->h),
-        );
+        $font->color( $color );
+        $font->write_xy( $screen, $item->{rect}->x, $item->{rect}->y, $item->{'name'} );
     }
 }
 
@@ -193,10 +265,14 @@ Or customize it at will:
 
     my $menu = SDLx::Widget::Menu->new(
                    topleft      => [100, 120],
-                   font         => 'game/data/menu_font.ttf',
+                   h_align      => 'right',
+                   spacing      => 10,
+                   mouse        => 1,
+                   font         => 'mygame/data/menu_font.ttf',
                    font_size    => 20,
                    font_color   => [255, 0, 0], # RGB (in this case, 'red')
                    select_color => [0, 255, 0],
+                   active_color => [0, 0, 255],
                    change_sound => 'game/data/menu_select.ogg',
                )->items(
                    'New Game' => \&play,
@@ -243,7 +319,18 @@ Available options are:
 
 =item * topleft => [ $top, $left ]
 
-Determines topmost and leftmost positions for the menu.
+Determines topmost and leftmost positions for the menu. Defaults to [ 0, 0 ].
+
+=item * h_align => 'center'
+
+Sets the preferred menu text alignment. Default is 'center', which
+will center menu items to their largest entry. Other possible values
+are 'left' and 'right'.
+
+=item * spacing => 20
+
+Sets the line spacing between menu items. Default value is 20. Setting
+this to 0 will place one item right below the other.
 
 =item * font => $filename
 
@@ -259,23 +346,34 @@ RGB value to set the font color.
 
 =item * select_color => [ $red, $green, $blue ]
 
-RGB value for the font color of the select item
+RGB value for the font color of the selected (clicked) item
+
+=item * active_color => [ $red, $green, $blue ]
+
+RGB value for the font color of the active (hovered) item
 
 =item * change_sound => $filename
 
 File name of the sound to play when the selected item changes
 
+=item * mouse => 1
+
+Indicates that menu items can be clicked using a mouse. By default,
+mouse input is active.
+
 =back
 
 =head2 items( 'Item 1' => \&sub1, 'Item 2' => \&sub2, ... )
+
+=head2 event_hook( $event )
+
+=head2 render( $surface )
 
 Creates menu items, setting up callbacks for each item.
 
 =head1 BUGS AND LIMITATIONS
 
 =over 4
-
-=item * Mouse doesn't work (yet)
 
 =item * Doesn't let you setup other keys to change current selection (yet)
 
@@ -288,7 +386,6 @@ Creates menu items, setting up callbacks for each item.
 Breno G. de Oliveira, C<< <garu at cpan.org> >>
 
 Kartik thakore C<< <kthakore at cpan.org> >>
-
 
 =head1 SEE ALSO
 

@@ -1,7 +1,8 @@
-package SDLx::Widget; 
-use strict; 
-use warnings; 
-our $VERSION = '0.071';
+package SDLx::Widget;
+use strict;
+use warnings;
+
+our $VERSION = '0.072';
 
 =head1 NAME
 
@@ -17,7 +18,7 @@ See the examples directory that came with this package
 
 =head1 BUGS
 
-You tell me! http://sdlperl.ath.cx/
+You tell me! https://github.com/PerlGameDev/SDLx-Widget/issues
 
 =head1 SUPPORT
 
@@ -31,13 +32,16 @@ Garu
 CPAN ID: GARU
 
 Zach
-CPAN ID:ZPMORGAN
+CPAN ID: ZPMORGAN
 
 FROGGS
 CPAN ID: FROGGS
 
 Kartik Thakore
 CPAN ID: KTHAKORE
+
+Jeffrey T. Palmer
+CPAN ID: JTPALMER
 
 http://sdl.perl.org
 
@@ -49,7 +53,6 @@ it and/or modify it under the same terms as Perl itself.
 The full text of the license can be found in the
 LICENSE file included with this module.
 
-
 =head1 SEE ALSO
 
 L<SDL>
@@ -57,7 +60,6 @@ L<SDL>
 =cut
 
 #################### main pod documentation end ###################
-
 
 1;
 # The preceding line will help the module return a true value
